@@ -1,8 +1,6 @@
-INF = 1e9+17
-FIRSTPLAYER = 'X'
-SECONDPLAYER = 'O'
-
 import copy
+
+INF = 1e9+17
 
 def isBoardFull(board):
     for i in range(3):
