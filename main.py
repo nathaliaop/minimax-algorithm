@@ -1,7 +1,8 @@
+INF = 1e9+17
+FIRSTPLAYER = 'X'
+SECONDPLAYER = 'O'
+
 import copy
-
-INF = 1e9 + 17
-
 
 def isBoardFull(board):
     for i in range(3):
@@ -129,6 +130,7 @@ def main():
             board = bestMove(board, cpu, user)
             print("------------------------")
 
+        showBoard(board)
         result = boardValue(board, cpu, user)
         match result:
             case 0:
