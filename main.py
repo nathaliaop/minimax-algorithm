@@ -1,6 +1,7 @@
 import copy
 
 INF = 1e9+17
+dp = {}
 
 def isBoardFull(board):
     for i in range(3):
@@ -46,10 +47,7 @@ def generatePossibleBoards(board, player):
                 auxBoard = copy.deepcopy(board)
     return possibleBoards
 
-
-dp = {}
-
-def myhash2(board):
+def createHash(board):
     ans = ''
 
     for i in range(3):
@@ -60,7 +58,7 @@ def myhash2(board):
 
 def minimax(board, depth, player, cpu, user):
     global dp
-    myhash = myhash2(board)
+    myhash = createHash(board)
 
     try:
         ans = dp[myhash]
@@ -86,13 +84,6 @@ def minimax(board, depth, player, cpu, user):
         return value
 
 
-def showBoard(board):
-    for i in range(3):
-        for j in range(3):
-            print(board[i][j], " | ", end="")
-        print("\n")
-
-
 def calculateDepth(board):
     depth = 0
     for i in range(3):
@@ -114,18 +105,10 @@ def bestMove(board, cpu, user):
         if minimaxResult > curr:
             curr = minimaxResult
             best_move = possibleBoard
+
     return best_move
 
-
-def main():
-    # board = [['O', 'X', ' '], ['X', ' ', ' '], ['X', 'O', 'O']]
-    board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
-    positions = {}
-    it = 0
-    for i in range(3):
-        for j in range(3):
-            positions[it] = (i,j)
-            it += 1
+def choosePlayers():
     cpu = "X"
     print("Choose X or O")
     user = input()
@@ -139,27 +122,29 @@ def main():
 
     if user == "X":
         cpu = "O"
-    while (
-        not isBoardFull(board)
-        and not playerWins(board, user)
-        and not playerWins(board, cpu)
-    ):
-        print("Make a move")
-        showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-        showBoard(board)
-        move = input()
-        possibleMoves = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
-        while move not in possibleMoves or (move in possibleMoves and board[positions[int(move)][0]][positions[int(move)][1]] != ' '):
-            print("Make a valid move")
-            showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-            showBoard(board)
-            move = input()
-        move = int(move)
-        board[positions[move][0]][positions[move][1]] = user
-        # board[move // 3][move % 3] = user
-        board = bestMove(board, cpu, user)
-        print("------------------------")
 
+    return (cpu, user)
+
+# dictonary that associates a number from 1 to 8 to a position in the board matriz
+def defineBoardPositions():
+    positions = {}
+    it = 0
+    for i in range(3):
+        for j in range(3):
+            positions[it] = (i,j)
+            it += 1
+
+    return positions
+
+def showBoard(board):
+    for i in range(3):
+        for j in range(3):
+            print(board[i][j], " | ", end="")
+        print("\n")
+    
+    return None
+
+def showResult(board, cpu, user):
     showBoard(board)
     result = boardValue(board, cpu, user)
     match result:
@@ -169,6 +154,38 @@ def main():
             print("CPU won")
         case -1:
             print("You won")
+
+    return None
+
+def main():
+    board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
+    possibleMoves = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
+    positions = defineBoardPositions()
+    cpu, user = choosePlayers()
+
+    while (
+        not isBoardFull(board)
+        and not playerWins(board, user)
+        and not playerWins(board, cpu)
+    ):
+        print("Make a move")
+        showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+        showBoard(board)
+        move = input()
+        # if move is valid and not yet occupied
+        while move not in possibleMoves or (move in possibleMoves and board[positions[int(move)][0]][positions[int(move)][1]] != ' '):
+            print("Make a valid move")
+            showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+            showBoard(board)
+            move = input()
+        move = int(move)
+        # user move
+        board[positions[move][0]][positions[move][1]] = user
+        # cpu move
+        board = bestMove(board, cpu, user)
+        print("------------------------")
+
+    showResult(board, cpu, user)
 
 
 if __name__ == "__main__":
