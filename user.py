@@ -1,8 +1,8 @@
 import copy
 
 INF = 1e9+17
-FIRSTPLAYER = 'X'
-SECONDPLAYER = 'O'
+FIRSTPLAYER = 'O'
+SECONDPLAYER = 'X'
 
 def isBoardFull(board):
     for i in range(3):
@@ -26,10 +26,10 @@ def playerWins(board, player):
             return True
     return False
 
-def boardValue(board):
-    if playerWins(board, FIRSTPLAYER):
+def boardValue(board, cpu, user):
+    if playerWins(board, cpu):
         return 1
-    elif playerWins(board, SECONDPLAYER):
+    elif playerWins(board, user):
         return -1
     else:
         return 0
@@ -45,18 +45,18 @@ def generatePossibleBoards(board, player):
                 auxBoard = copy.deepcopy(board)
     return possibleBoards
 
-def minimax(board, depth, player):
+def minimax(board, depth, player, cpu, user):
     if depth == 0 or isBoardFull(board):
-        return boardValue(board)
-    if player == FIRSTPLAYER:
+        return boardValue(board, cpu, user)
+    if player == cpu:
         value = -INF
         for child in generatePossibleBoards(board, player):
-            value = max(value, minimax(child, depth - 1, SECONDPLAYER))
+            value = max(value, minimax(child, depth - 1, user, cpu, user))
         return value
     else:
         value = INF
         for child in generatePossibleBoards(board, player):
-            value = min( value, minimax( child, depth - 1, FIRSTPLAYER))
+            value = min( value, minimax( child, depth - 1, cpu, cpu, user))
         return value
 
 def showBoard(board):
@@ -81,7 +81,7 @@ def bestMove(board, cpu, user):
  best_move = []
  depth = calculateDepth(possibleBoards[0])
  for possibleBoard in possibleBoards:
-  minimaxResult = minimax(possibleBoard, depth, user)
+  minimaxResult = minimax(possibleBoard, depth, user, cpu, user)
   if minimaxResult > curr:
    curr = minimaxResult
    best_move = possibleBoard
@@ -90,26 +90,44 @@ def bestMove(board, cpu, user):
 def main():
  # board = [['O', 'X', ' '], ['X', ' ', ' '], ['X', 'O', 'O']]
  board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
- user = 'O'
  cpu = 'X'
+ print('Choose X or O')
+ user = input()
 
- while(not isBoardFull(board) and not playerWins(board, user) and not playerWins(board, cpu)):
-  print('Make a move')
-  showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-  showBoard(board)
-  move = int(input())
-  board[move//3][move%3] = user
-  board = bestMove(board, cpu, user)
-  print('------------------------')
+ while user.upper() != 'X' and user.upper() != 'O':
+  print('Choose X or O')
+  user = input()
 
- result = boardValue(board)
- match result:
-       case 0:
-           print('It\'s a draw')
-       case 1:
-           print('You won')
-       case -1:
-           print('CPU won')
+ user = user.upper()
+ cpu = cpu.upper()
+ 
+ if (user == 'X'):
+  cpu = 'O'
+ try:
+  while(not isBoardFull(board) and not playerWins(board, user) and not playerWins(board, cpu)):
+   print('Make a move')
+   showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+   showBoard(board)
+   move = int(input())
+   while board[move//3][move%3] != ' ':
+    print('Make a valid move')
+    showBoard([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+    showBoard(board)
+    move = int(input())
+   board[move//3][move%3] = user
+   board = bestMove(board, cpu, user)
+   print('------------------------')
+
+  result = boardValue(board, cpu, user)
+  match result:
+        case 0:
+            print('It\'s a draw')
+        case 1:
+            print('CPU won')
+        case -1:
+            print('You won')
+ except:
+   print("Enter a valid move (a number between 0 and 8)")
 
 if __name__ == '__main__':
     main()
